@@ -9,7 +9,7 @@
     function config($stateProvider) {
         $stateProvider.state('app.particleSwarm', {
             url: '/particleswarm',
-            templateUrl: 'features/particleswarm/particleswarm.html'
+            templateUrl: 'd3machine/features/particleswarm/particleswarm.html'
         });
     }
 }(angular));

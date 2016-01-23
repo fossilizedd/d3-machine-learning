@@ -8,18 +8,12 @@
     ]).config(config);
 
     function config($stateProvider, $urlRouterProvider) {
-        // $urlRouterProvider.otherwise('/fossilized');
+        $urlRouterProvider.otherwise('/fossilized');
 
         $stateProvider
             .state('app', {
                 url: '/fossilized',
-                templateUrl: '../index.html',
-                resolve: {
-                    called: function() {
-                        debugger;
-                        return "why";
-                    }
-                }
+                template: '<ui-view> </ui-view>'
             });
     }
 })(angular);
