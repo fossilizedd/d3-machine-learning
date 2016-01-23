@@ -16,8 +16,8 @@
         self.multiSwarmGlobal = 0.3645;
         self.max = 100;
         self.min = -100;
-        self.nSwarms = 3;
-        self.nParticles = 5;
+        self.nSwarms = 9;
+        self.nParticles = 3;
 
         self.generateSwarm = generateSwarm;
         self.generateMultiSwarm = generateMultiSwarm;
@@ -83,6 +83,8 @@
                 y: randomNumber(max - min) + min
             };
 
+            particle.oldPosition = {x: particle.position.x, y: particle.position.y};
+
             particle.cost = fCost(particle.position);
             particle.bestCost = particle.cost;
             particle.bestPosition = {};
@@ -145,6 +147,8 @@
         }
 
         function updatePosition(particle) {
+            particle.oldPosition.x = particle.position.x;
+            particle.oldPosition.y = particle.position.y;
             particle.position.x += particle.velocity.x;
             particle.position.y += particle.velocity.y;
         }

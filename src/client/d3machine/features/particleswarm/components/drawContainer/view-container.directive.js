@@ -8,7 +8,7 @@
         return {
             require: '^particleSwarmDraw',
             restrict: 'E',
-            templateUrl: 'features/particleswarm/components/drawContainer/view-container-template.html',
+            templateUrl: 'd3machine/features/particleswarm/components/drawContainer/view-container-template.html',
             controller: 'ViewContainerController',
             controllerAs: 'vm',
             bindToController: true,

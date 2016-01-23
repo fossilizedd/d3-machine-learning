@@ -11,7 +11,7 @@
             controllerAs: 'vm',
             bindToController: true,
             transclude: true,
-            templateUrl: 'features/particleswarm/components/particleSwarmGraph/particle-swarm-draw.html'
+            templateUrl: 'd3machine/features/particleswarm/components/particleSwarmGraph/particle-swarm-draw.html'
         };
     }
 }(angular));

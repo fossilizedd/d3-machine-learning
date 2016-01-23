@@ -1,8 +1,3 @@
-//Notes
-// See if basedir works with files outside of it (probably does)
-// Copy the index file to .serve
-// inject relative to .serve/index.html
-
 var gulp = require('gulp');
 var del = require('del');
 var config = require('./gulp.config')();
@@ -110,7 +105,7 @@ gulp.task('sass-watch', function(){
 });
 
 gulp.task('serve-dev', ['inject', 'tdd'], function() {
-
+    var isDev = true;
     var nodeOptions = {
         script: config.nodeServer,
         delayTime: 1,
@@ -118,33 +113,35 @@ gulp.task('serve-dev', ['inject', 'tdd'], function() {
             'PORT' : port,
             'NODE_ENV': isDev ? 'dev' : 'build'
         },
-        watch: [config.serverDir]
+        watch: [config.serverFiles]
     }
 
     return $.nodemon(nodeOptions)
         .on('restart', function() {
+            log('*** nodemon restarted');
             setTimeout(function() {
                 browerSync.reload({stream: false});
             }, config.browserReloadDelay)
         })
         .on('start', function() {
+            log('*** nodemon started');
             startBrowserSync();
         })
         .on('crash', function() {
-
+            log('*** nodemon crash');
         })
         .on('exit', function() {
-
+            log('*** nodemon exit');
         });
 });
 
 //Need to run tests
 gulp.task('test', function() {
-    karma.start({
-        configFile: __dirname + paths.karmaCfg,
-        browsers: ['PhantomJS'],
-        singleRun: true
-    })
+    // karma.start({
+    //     configFile: __dirname + paths.karmaCfg,
+    //     browsers: ['PhantomJS'],
+    //     singleRun: true
+    // })
 });
 
 gulp.task('tdd', function() {
@@ -173,7 +170,7 @@ function startBrowserSync() {
 
     var options = {
         proxy: 'localhost:' + port,
-        port: 3000,
+        port: port,
         files: [
             config.d3machine + '**/*.*',
             '!' + config.sass,
@@ -193,16 +190,5 @@ function startBrowserSync() {
         reloadDelay: 1000
 
     }
-
     browserSync(options);
 }
-
-//Need to start server
-// gulp.task('serve', ['index', 'tdd'], function() {
-//     browserSync.init({
-//       server: {
-//           baseDir: paths.serve
-//         }
-//     });
-//     gulp.watch(config.js.concat(paths.partials), ['js-watch']);
-// });

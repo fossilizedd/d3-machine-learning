@@ -8,7 +8,7 @@
     // @ngInject
     function config($stateProvider) {
         $stateProvider.state('app.particleSwarm', {
-            url: '^/particleswarm',
+            url: '/particleswarm',
             templateUrl: 'features/particleswarm/particleswarm.html'
         });
     }

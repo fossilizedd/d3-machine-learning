@@ -19,7 +19,7 @@ switch(environment) {
         console.log('DEV');
         app.use(express.static('./src/client'));
         app.use(express.static('./'));
-        app.use(express.static('./.tmp'));
+        app.use(express.static('./.temp'));
 
         app.use('/app/*', function(req, res, next) {
             four0four.send404(req, res);
@@ -33,9 +33,9 @@ app.get('/', function(req, res) {
     res.send('Hello World');
 });
 
-app.listen(3000, function() {
+app.listen(port, function() {
     console.log('d3-machine-learning');
     console.log('env = ' + app.get('env')
-        + '\n__dirname = ' + __dirname +
-        + '\n process.cwd = ' + process.cws());
+        + '\n__dirname = ' + __dirname
+        + '\n process.cwd = ' + process.cwd());
 });

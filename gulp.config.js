@@ -30,7 +30,8 @@ module.exports = function() {
         fonts: './bower_components/fonts-awesome/fonts/**/*.*',
         images: 'images',
         defaultPort: 8080,
-        nodeServer: serve + 'server/app.js',
+        nodeServer: './src/server/app.js',
+        server: server,
         browserReloadDelay: 2000,
         templateCache: {
             options:  {

@@ -18,7 +18,9 @@
     "url": "https://github.com/eddiehobbes/d3-machine-learning/issues"
   },
   "homepage": "https://github.com/eddiehobbes/d3-machine-learning",
-  "dependencies": {},
+  "dependencies": {
+    "express": "^4.13.4"
+  },
   "devDependencies": {
     "browser-sync": "^2.11.0",
     "browserify": "^11.0.0",
