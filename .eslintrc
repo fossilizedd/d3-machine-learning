@@ -1,0 +1,13 @@
+{
+    "env": {
+        "node": 1
+    },
+    "rules": {
+        "quotes": 0,
+        "no-shadow": 0,
+        "no-use-before-define": 0
+    },
+    "globals": {
+        "angular": 1
+    }
+}
