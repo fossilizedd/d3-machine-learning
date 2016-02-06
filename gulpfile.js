@@ -8,6 +8,9 @@ var browserify = require('browserify');
 var es = require('event-stream');
 var series = require('stream-series');
 var karma = require('karma').server;
+var lazypipe = require('lazypipe');
+
+
 
 var port = process.env.PORT || config.defaultPort;
 
@@ -30,15 +33,24 @@ gulp.task('optimize', ['inject'], function() {
     var css = '*.css';
     var js = '*.js';
 
+    var jsPipe = lazypipe()
+        .pipe($.ngAnnotate)
+        .pipe($.uglify);
+
+    var cssPipe = lazypipe()
+        .pipe($.htmlmin);
 
     return gulp.src(config.index)
         .pipe($.inject(gulp.src(templateCache, {read: false}), {
             starttag: '<!-- inject:templates.js -->'
         }))
         .pipe($.useref({searchPath: './'}))
-        .pipe($.gulpif(['*.js', '!bower_components/**/*.js'], $.uglify()))
-        .pipe($.gulpif(['*.css', '!bower_components/**/*.css'], $.htmlmin()))
-        .pipe(gulp.dest(config.serve))
+        .pipe($.print())
+        .pipe($.if(['*/*.js', '*/*.css', '!*/index.html'], $.rev()))
+        .pipe($.if(['*/*.js', '!*/lib.js'], jsPipe()))
+        .pipe($.if(['*/*.css', '!*/lib.css'], cssPipe()))
+        .pipe($.revReplace())
+        .pipe(gulp.dest(config.serve));
 })
 
 gulp.task('fonts', ['clean-fonts'], function() {
@@ -221,4 +233,13 @@ function startBrowserSync(isDev) {
 
     }
     browserSync(options);
+}
+
+/**
+ * When files change, log it
+ * @param  {Object} event - event that fired
+ */
+function changeEvent(event) {
+    var srcPattern = new RegExp('/.*(?=/' + config.source + ')/');
+    log('File ' + event.path.replace(srcPattern, '') + ' ' + event.type);
 }
