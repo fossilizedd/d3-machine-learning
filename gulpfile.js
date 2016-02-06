@@ -36,8 +36,8 @@ gulp.task('optimize', ['inject'], function() {
             starttag: '<!-- inject:templates.js -->'
         }))
         .pipe($.useref({searchPath: './'}))
-        .pipe($.gulpif(['*.js', '!bower_components/**/*.js']), $.uglify())
-        .pipe($.gulpif(['*.css', '!bower_components/**/*.css']), $.htmlmin())
+        .pipe($.gulpif(['*.js', '!bower_components/**/*.js'], $.uglify()))
+        .pipe($.gulpif(['*.css', '!bower_components/**/*.css'], $.htmlmin()))
         .pipe(gulp.dest(config.serve))
 })
 
