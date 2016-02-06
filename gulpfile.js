@@ -27,13 +27,17 @@ gulp.task('templatecache', ['clean-code'], function() {
 
 gulp.task('optimize', ['inject'], function() {
     var templateCache = config.temp + config.templateCache.file;
-    var cssFilter = $.filter('**/*.css');
+    var css = '*.css';
+    var js = '*.js';
+
 
     return gulp.src(config.index)
         .pipe($.inject(gulp.src(templateCache, {read: false}), {
             starttag: '<!-- inject:templates.js -->'
         }))
         .pipe($.useref({searchPath: './'}))
+        .pipe($.gulpif(['*.js', '!bower_components/**/*.js']), $.uglify())
+        .pipe($.gulpif(['*.css', '!bower_components/**/*.css']), $.htmlmin())
         .pipe(gulp.dest(config.serve))
 })
 
