@@ -3,7 +3,7 @@
 
     angular.module('d3machinelearn', [
         'ui.router',
-        // 'd3machinelearn.core',
+        'd3machinelearn.core',
         'd3machinelearn.particleSwarm'
     ]).config(config);
 

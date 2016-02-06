@@ -3,7 +3,6 @@ var del = require('del');
 var config = require('./gulp.config')();
 
 var $ = require('gulp-load-plugins')({lazy: true});
-
 var browserSync = require('browser-sync').create();
 var browserify = require('browserify');
 var es = require('event-stream');
@@ -12,17 +11,31 @@ var karma = require('karma').server;
 
 var port = process.env.PORT || config.defaultPort;
 
+// TODO useref pipeline for uglify, minify css, ng annotate
+// TODO cache busting
+
 gulp.task('help', $.taskListing);
 
 gulp.task('default', ['help']);
 
 gulp.task('templatecache', ['clean-code'], function() {
     return gulp.src(config.htmlTemplates)
-        .pipe($.uglify())
+        .pipe($.htmlmin({ collapseWhitespace: true}))
         .pipe($.angularTemplatecache(config.templateCache.file, config.templateCache.options))
         .pipe(gulp.dest(config.temp))
-
 });
+
+gulp.task('optimize', ['inject'], function() {
+    var templateCache = config.temp + config.templateCache.file;
+    var cssFilter = $.filter('**/*.css');
+
+    return gulp.src(config.index)
+        .pipe($.inject(gulp.src(templateCache, {read: false}), {
+            starttag: '<!-- inject:templates.js -->'
+        }))
+        .pipe($.useref({searchPath: './'}))
+        .pipe(gulp.dest(config.serve))
+})
 
 gulp.task('fonts', ['clean-fonts'], function() {
     return gulp.src(config.fonts)
@@ -37,8 +50,6 @@ gulp.task('images', ['clean-images'], function() {
 
 gulp.task('wiredep', function() {
     var wiredep = require('wiredep').stream;
-    log(config.index);
-    // log(config.d3machine);
 
     return gulp.src(config.index)
         .pipe(wiredep(config.wiredepConfig()))
@@ -46,7 +57,7 @@ gulp.task('wiredep', function() {
         .pipe(gulp.dest(config.d3machine));
 });
 
-gulp.task('inject', ['wiredep', 'sass'], function() {
+gulp.task('inject', ['wiredep', 'sass', 'templatecache'], function() {
     return gulp.src(config.index)
         .pipe($.inject(gulp.src(config.css), {name:'inject-css'}))
         .pipe(gulp.dest(config.d3machine));
@@ -104,8 +115,15 @@ gulp.task('sass-watch', function(){
     gulp.watch([config.sass], ['sass']);
 });
 
+gulp.task('serve-build', ['optimize'], function() {
+    serve(false);
+});
+
 gulp.task('serve-dev', ['inject', 'tdd'], function() {
-    var isDev = true;
+    serve(true);
+});
+
+function serve(isDev) {
     var nodeOptions = {
         script: config.nodeServer,
         delayTime: 1,
@@ -125,7 +143,7 @@ gulp.task('serve-dev', ['inject', 'tdd'], function() {
         })
         .on('start', function() {
             log('*** nodemon started');
-            startBrowserSync();
+            startBrowserSync(isDev);
         })
         .on('crash', function() {
             log('*** nodemon crash');
@@ -133,22 +151,22 @@ gulp.task('serve-dev', ['inject', 'tdd'], function() {
         .on('exit', function() {
             log('*** nodemon exit');
         });
-});
+}
 
 //Need to run tests
 gulp.task('test', function() {
-    // karma.start({
-    //     configFile: __dirname + paths.karmaCfg,
-    //     browsers: ['PhantomJS'],
-    //     singleRun: true
-    // })
+    karma.start({
+        configFile: __dirname + config.karma,
+        browsers: ['PhantomJS'],
+        singleRun: true
+    })
 });
 
 gulp.task('tdd', function() {
-    // karma.start({
-    //     configFile: __dirname + paths.karmaCfg,
-    //     browsers: ['PhantomJS']
-    // });
+    karma.start({
+        configFile: __dirname + config.karma,
+        browsers: ['PhantomJS']
+    });
 })
 
 function log(msg) {
@@ -163,19 +181,27 @@ function log(msg) {
     }
 }
 
-function startBrowserSync() {
+function startBrowserSync(isDev) {
     if (browserSync.active) {
         return;
+    }
+
+    if(isDev) {
+        gulp.watch([config.sass], ['styles'])
+        .on('change', function(event) { changeEvent(event);});
+    } else {
+        gulp.watch([config.sass, config.js, config.html], ['optimize', browserSync.reload])
+        .on('change', function(event) { changeEvent(event);});
     }
 
     var options = {
         proxy: 'localhost:' + port,
         port: port,
-        files: [
+        files: isDev ? [
             config.d3machine + '**/*.*',
             '!' + config.sass,
             config.css
-        ],
+        ] : [],
         ghostMode: {
             clicks: true,
             location: false,

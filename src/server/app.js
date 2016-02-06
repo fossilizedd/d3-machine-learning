@@ -15,6 +15,15 @@ app.get('/ping', function(req, res, next) {
 });
 
 switch(environment) {
+    case 'build':
+        console.log('BUILD');
+        app.use(express.static('./.serve'))
+        app.use('/app/*', function(req, res, next) {
+            four0four.send404(req, res);
+        })
+
+        app.use('/*', express.static('./.serve/index.html'));
+        break;
     default:
         console.log('DEV');
         app.use(express.static('./src/client'));

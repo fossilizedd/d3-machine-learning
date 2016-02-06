@@ -15,7 +15,8 @@ module.exports = function() {
         sass: [styles + '**/*.scss'],
         sassTemp: ['.serve/'],
         css: temp + '**/*.css',
-        htmlTemplates: + d3machine + '**/*.html',
+        html: '**/*.html',
+        htmlTemplates: d3machine + '**/*.html',
         wiredepConfig: wiredepConfig,
         wireJS: [
             d3machine + '**/*.module.js',
@@ -37,10 +38,11 @@ module.exports = function() {
             options:  {
                 module: 'd3machinelearn.core',
                 standAlone: false,
-                root: 'd3machine/'
+                root: ''
             },
             file: 'templates.js'
-        }
+        },
+        karma: './karma.conf.js'
     };
 
     function wiredepConfig() {
