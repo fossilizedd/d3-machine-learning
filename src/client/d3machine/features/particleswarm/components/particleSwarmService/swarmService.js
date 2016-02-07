@@ -16,8 +16,8 @@
         self.multiSwarmGlobal = 0.3645;
         self.max = 100;
         self.min = -100;
-        self.nSwarms = 9;
-        self.nParticles = 3;
+        self.nSwarms = 0;
+        self.nParticles = 0;
 
         self.generateSwarm = generateSwarm;
         self.generateMultiSwarm = generateMultiSwarm;

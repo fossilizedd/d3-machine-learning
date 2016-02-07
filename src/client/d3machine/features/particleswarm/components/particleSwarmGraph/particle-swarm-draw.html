@@ -4,7 +4,8 @@
             James McCaffrey Multi-Swarm Particle Optimization
         </h2>
         <a href="https://msdn.microsoft.com/en-us/magazine/dn385711.aspx">
-            MSDN article
+            MSDN article ghf
+
         </a>
     </div>
 </div>
@@ -12,14 +13,19 @@
     <div class="col-md-6">
         <div class="input-group input-group-sm">
           <span class="input-group-addon" id="sizing-addon3">Swarms</span>
-          <input type="text" class="form-control" placeholder="Number of Swarms" aria-describedby="sizing-addon3">
+          <input type="text" class="form-control" placeholder="Number of Swarms" aria-describedby="sizing-addon3" ng-model="{{vm.nSwarms}}">
         </div>
     </div>
     <div class="col-md-6">
         <div class="input-group input-group-sm">
-          <span class="input-group-addon" id="sizing-addon3">Particles per Swarm</span>
-          <input type="text" class="form-control" placeholder="Particles in a Swarm" aria-describedby="sizing-addon3">
+          <span class="input-group-addon" id="sizing-addon3">Particles</span>
+          <input type="text" class="form-control" placeholder="Particles in a Swarm" aria-describedby="sizing-addon3" ng-model="{{vm.nParticles}}">
         </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <input class="btn btn-default" type="button" value="Iterate" ng-click="vm.startIteration()">
     </div>
 </div>
 <div class="row">

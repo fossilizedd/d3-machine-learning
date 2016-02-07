@@ -18,13 +18,20 @@ gulp.task('default', ['help']);
 
 gulp.task('templatecache', ['clean-code'], function() {
     log('Creating an AngularJS $templateCache');
-    return gulp.src(config.htmlTemplates)
+    return gulp.src(config.htmlTemplates).on('error', errorHandler)
+        .pipe($.plumber())
         .pipe($.htmlmin({ collapseWhitespace: true}))
+        .pipe($.plumber())
         .pipe($.angularTemplatecache(config.templateCache.file, config.templateCache.options))
+        .pipe($.plumber())
         .pipe(gulp.dest(config.temp))
+        .pipe($.plumber())
+
 });
 
 gulp.task('optimize', ['inject'], function() {
+    log('Starting optimize');
+
     var templateCache = config.temp + config.templateCache.file;
     var css = '*.css';
     var js = '*.js';
@@ -71,6 +78,8 @@ gulp.task('wiredep', function() {
 });
 
 gulp.task('inject', ['wiredep', 'sass', 'templatecache'], function() {
+    log('Inject');
+
     return gulp.src(config.index)
         .pipe($.inject(gulp.src(config.css), {name:'inject-css'}))
         .pipe(gulp.dest(config.d3machine));
@@ -99,30 +108,30 @@ gulp.task('clean', function(done) {
     del(delDir, done);
 });
 
-gulp.task('clean-styles', function(done) {
-    clean(config.css, done);
+gulp.task('clean-styles', function() {
+    return clean(config.css);
 });
 
-gulp.task('clean-images', function(done) {
-    clean(config.dist + 'images/**/*.*', done);
+gulp.task('clean-images', function() {
+    return clean(config.dist + 'images/**/*.*');
 });
 
-gulp.task('clean-fonts', function(done) {
-    clean(config.dist + 'images/**/*.*', done);
+gulp.task('clean-fonts', function() {
+    return clean(config.dist + 'images/**/*.*');
 });
 
-gulp.task('clean-code', function(done) {
+gulp.task('clean-code', function() {
     var files = [].concat(
         config.temp + '**/*.js',
         config.serve + '**/*.html',
         config.serve + 'js/**/*.js'
     )
-    clean(files, done);
+    return clean(files);
 });
 
-function clean(path, done) {
+function clean(path) {
     log('Cleaning: ' + $.util.colors.blue(path));
-    del(path, done);
+    return del(path);
 }
 
 gulp.task('sass-watch', function(){
@@ -133,7 +142,7 @@ gulp.task('serve-build', ['optimize'], function() {
     serve(false);
 });
 
-gulp.task('serve-dev', ['inject', 'tdd'], function() {
+gulp.task('serve-dev', ['inject'], function() {
     serve(true);
 });
 
@@ -152,7 +161,7 @@ function serve(isDev) {
         .on('restart', function() {
             log('*** nodemon restarted');
             setTimeout(function() {
-                browerSync.reload({stream: false});
+                browserSync.reload({stream: false});
             }, config.browserReloadDelay)
         })
         .on('start', function() {
@@ -228,7 +237,6 @@ function startBrowserSync(isDev) {
         logPrefix: 'gulp-patterns',
         notify: true,
         reloadDelay: 1000
-
     }
     browserSync(options);
 }
@@ -246,3 +254,9 @@ function changeEvent(event) {
  * Optimize the code and re-load browserSync
  */
 gulp.task('browserSyncReload', ['optimize'], browserSync.reload);
+
+// Handle the error
+function errorHandler (error) {
+  console.log(error.toString());
+  this.emit('end');
+}

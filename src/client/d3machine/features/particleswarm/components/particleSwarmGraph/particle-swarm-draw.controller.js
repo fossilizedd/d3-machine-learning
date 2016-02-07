@@ -5,13 +5,13 @@
         .controller('particleSwarmDrawController', ParticleSwarmDrawController);
 
     //@ngInject
-    function ParticleSwarmDrawController(SwarmService) {
+    function ParticleSwarmDrawController($interval, SwarmService) {
         var vm = this;
 
         vm.init = init;
         vm.drawSample = drawSample;
         vm.initSeedModel = initSeedModel;
-        vm.iterateSolution = iterateSolution;
+        vm.startIteration = startIteration
 
         function init() {
             initDrawContainer();
@@ -73,8 +73,17 @@
 
         function initSeedModel() {
             SwarmService.multiSwarm = SwarmService.generateMultiSwarm(SwarmService.nSwarms, SwarmService.nParticles, SwarmService.min, SwarmService.max);
+            vm.nSwarms = SwarmService.nSwarms;
+            vm.nParticles = SwarmService.nParticles;
             vm.solution = SwarmService.multiSwarm;
             drawLoop();
+        }
+
+        function startIteration() {
+            $interval(function() {
+                scope.vm.iterateSolution();
+                scope.vm.count++;
+            }, 2000);
         }
 
         function iterateSolution() {

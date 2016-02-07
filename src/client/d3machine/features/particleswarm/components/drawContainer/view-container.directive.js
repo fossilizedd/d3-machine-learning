@@ -18,11 +18,6 @@
                 scope.vm.iterateSolution = particleSwarmDrawController.iterateSolution;
                 scope.vm.solution = particleSwarmDrawController.solution;
                 scope.vm.count = 0;
-
-                $interval(function() {
-                    scope.vm.iterateSolution();
-                    scope.vm.count++;
-                }, 2000);
             }
         };
     }
