@@ -1,9 +1,36 @@
-<div>
-    <a href="https://msdn.microsoft.com/en-us/magazine/dn385711.aspx">
-        James McCaffrey MSDN article
-    </a>
+<div class="row">
+    <div class="col-md-12">
+        <h2>
+            James McCaffrey Multi-Swarm Particle Optimization
+        </h2>
+        <a href="https://msdn.microsoft.com/en-us/magazine/dn385711.aspx">
+            MSDN article
+        </a>
+    </div>
 </div>
-<div>
-    <view-container>
-    </view-container>
+<div class="row">
+    <div class="col-md-6">
+        <div class="input-group input-group-sm">
+          <span class="input-group-addon" id="sizing-addon3">Swarms</span>
+          <input type="text" class="form-control" placeholder="Number of Swarms" aria-describedby="sizing-addon3">
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="input-group input-group-sm">
+          <span class="input-group-addon" id="sizing-addon3">Particles per Swarm</span>
+          <input type="text" class="form-control" placeholder="Particles in a Swarm" aria-describedby="sizing-addon3">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div>
+        <h4>Best Solution</h4>
+            X: {{vm.solution.bestPosition.x | number: 2}} Y: {{vm.solution.bestPosition.y | number: 2}} Cost: {{vm.solution.bestCost | number:2}} Iteration: {{vm.count}}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <view-container>
+        </view-container>
+    </div>
 </div>

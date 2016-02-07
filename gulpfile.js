@@ -10,18 +10,14 @@ var series = require('stream-series');
 var karma = require('karma').server;
 var lazypipe = require('lazypipe');
 
-
-
 var port = process.env.PORT || config.defaultPort;
-
-// TODO useref pipeline for uglify, minify css, ng annotate
-// TODO cache busting
 
 gulp.task('help', $.taskListing);
 
 gulp.task('default', ['help']);
 
 gulp.task('templatecache', ['clean-code'], function() {
+    log('Creating an AngularJS $templateCache');
     return gulp.src(config.htmlTemplates)
         .pipe($.htmlmin({ collapseWhitespace: true}))
         .pipe($.angularTemplatecache(config.templateCache.file, config.templateCache.options))
@@ -45,7 +41,6 @@ gulp.task('optimize', ['inject'], function() {
             starttag: '<!-- inject:templates.js -->'
         }))
         .pipe($.useref({searchPath: './'}))
-        .pipe($.print())
         .pipe($.if(['*/*.js', '*/*.css', '!*/index.html'], $.rev()))
         .pipe($.if(['*/*.js', '!*/lib.js'], jsPipe()))
         .pipe($.if(['*/*.css', '!*/lib.css'], cssPipe()))
@@ -65,6 +60,8 @@ gulp.task('images', ['clean-images'], function() {
 });
 
 gulp.task('wiredep', function() {
+    log('Wiring bower dependencies into the index.html');
+
     var wiredep = require('wiredep').stream;
 
     return gulp.src(config.index)
@@ -98,6 +95,7 @@ gulp.task('lint', function() {
 
 gulp.task('clean', function(done) {
     var delDir = [].concat(config.dist, config.temp);
+    log('Cleaning: ' + $.util.colors.blue(delconfig));
     del(delDir, done);
 });
 
@@ -206,7 +204,7 @@ function startBrowserSync(isDev) {
         gulp.watch([config.sass], ['styles'])
         .on('change', function(event) { changeEvent(event);});
     } else {
-        gulp.watch([config.sass, config.js, config.html], ['optimize', browserSync.reload])
+        gulp.watch([config.sass, config.js, config.html], ['browserSyncReload'])
         .on('change', function(event) { changeEvent(event);});
     }
 
@@ -243,3 +241,8 @@ function changeEvent(event) {
     var srcPattern = new RegExp('/.*(?=/' + config.source + ')/');
     log('File ' + event.path.replace(srcPattern, '') + ' ' + event.type);
 }
+
+/**
+ * Optimize the code and re-load browserSync
+ */
+gulp.task('browserSyncReload', ['optimize'], browserSync.reload);
