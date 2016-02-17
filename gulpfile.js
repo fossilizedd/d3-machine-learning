@@ -3,7 +3,7 @@ var del = require('del');
 var config = require('./gulp.config')();
 
 var $ = require('gulp-load-plugins')({lazy: true});
-var browserSync = require('browser-sync').create();
+var browserSync = require('browser-sync');
 var browserify = require('browserify');
 var es = require('event-stream');
 var series = require('stream-series');
@@ -30,7 +30,7 @@ gulp.task('templatecache', ['clean-code'], function() {
 });
 
 gulp.task('optimize', ['inject'], function() {
-    log('Starting optimize');
+    log('Starting reduction of js, css and html files into single files');
 
     var templateCache = config.temp + config.templateCache.file;
     var css = '*.css';
@@ -56,11 +56,13 @@ gulp.task('optimize', ['inject'], function() {
 })
 
 gulp.task('fonts', ['clean-fonts'], function() {
+    log('Preparing serve fonts');
     return gulp.src(config.fonts)
         .pipe(gulp.dest(config.dist + 'fonts'));
 });
 
 gulp.task('images', ['clean-images'], function() {
+    log('Preparing serve images');
     return gulp.src(config.images)
         .pipe($.imagemin({optimizationLevel: 4}))
         .pipe(gulp.dest(config.dist + 'images'));
@@ -68,9 +70,7 @@ gulp.task('images', ['clean-images'], function() {
 
 gulp.task('wiredep', function() {
     log('Wiring bower dependencies into the index.html');
-
     var wiredep = require('wiredep').stream;
-
     return gulp.src(config.index)
         .pipe(wiredep(config.wiredepConfig()))
         .pipe($.inject(gulp.src(config.wireJS), {name: 'inject-js'}))
@@ -78,8 +78,7 @@ gulp.task('wiredep', function() {
 });
 
 gulp.task('inject', ['wiredep', 'sass', 'templatecache'], function() {
-    log('Inject');
-
+    log('Injecting css dependencies into index.html');
     return gulp.src(config.index)
         .pipe($.inject(gulp.src(config.css), {name:'inject-css'}))
         .pipe(gulp.dest(config.d3machine));
@@ -87,7 +86,8 @@ gulp.task('inject', ['wiredep', 'sass', 'templatecache'], function() {
 
 //Build css from sass
 gulp.task('sass', ['clean-styles'], function() {
-  return gulp.src(config.sass)
+    log('Transpiling sass into css');
+    return gulp.src(config.sass)
     .pipe($.plumber())
     .pipe($.sass())
     .pipe($.autoprefixer({browsers: ['last 2 version', '> 5%']}))
@@ -95,6 +95,7 @@ gulp.task('sass', ['clean-styles'], function() {
 });
 
 gulp.task('lint', function() {
+    log('Linting .js files');
     gulp.src(config.js)
     .pipe($.eslint({
         config: '.eslintrc'
@@ -121,6 +122,7 @@ gulp.task('clean-fonts', function() {
 });
 
 gulp.task('clean-code', function() {
+    log('Deleting build files');
     var files = [].concat(
         config.temp + '**/*.js',
         config.serve + '**/*.html',
@@ -135,6 +137,7 @@ function clean(path) {
 }
 
 gulp.task('sass-watch', function(){
+    log('Starting sass watcher')
     gulp.watch([config.sass], ['sass']);
 });
 
@@ -161,6 +164,7 @@ function serve(isDev) {
         .on('restart', function() {
             log('*** nodemon restarted');
             setTimeout(function() {
+                browserSync.notify('reloading now ...');
                 browserSync.reload({stream: false});
             }, config.browserReloadDelay)
         })
@@ -209,8 +213,10 @@ function startBrowserSync(isDev) {
         return;
     }
 
+    log('Starting BrowserSync on port ' + port);
+
     if(isDev) {
-        gulp.watch([config.sass], ['styles'])
+        gulp.watch([config.sass], ['clean-styles'])
         .on('change', function(event) { changeEvent(event);});
     } else {
         gulp.watch([config.sass, config.js, config.html], ['browserSyncReload'])
@@ -234,10 +240,10 @@ function startBrowserSync(isDev) {
         injectChanges: true,
         logFileChanges: true,
         logLevel: 'debug',
-        logPrefix: 'gulp-patterns',
+        logPrefix: 'frontend-build',
         notify: true,
         reloadDelay: 1000
-    }
+    };
     browserSync(options);
 }
 

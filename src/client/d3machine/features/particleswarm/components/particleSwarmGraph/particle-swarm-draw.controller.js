@@ -7,13 +7,18 @@
     //@ngInject
     function ParticleSwarmDrawController($interval, SwarmService) {
         var vm = this;
+        var solutionIterator;
 
         vm.init = init;
-        vm.drawSample = drawSample;
         vm.initSeedModel = initSeedModel;
         vm.startIteration = startIteration
+        vm.junk = 'eqls='
+        vm.count = 0;
 
         function init() {
+            vm.count = 0;
+            vm.nSwarms = 3;
+            vm.nParticles = 4;
             initDrawContainer();
             swarmDrawConfig();
             swarmScales();
@@ -59,34 +64,24 @@
                 .attr('height', vm.draw.svg.height);
         }
 
-        function drawSample() {
-            var draw = vm.draw.svg.draw.selectAll('circle')
-                .data([1]);
-
-            draw.enter()
-                .append('circle')
-                .attr('r', 25)
-                .attr('cx', 200)
-                .attr('cy', 200)
-                .style('fill', 'IndianRed');
-        }
-
         function initSeedModel() {
-            SwarmService.multiSwarm = SwarmService.generateMultiSwarm(SwarmService.nSwarms, SwarmService.nParticles, SwarmService.min, SwarmService.max);
-            vm.nSwarms = SwarmService.nSwarms;
-            vm.nParticles = SwarmService.nParticles;
+            SwarmService.multiSwarm = SwarmService.generateMultiSwarm(vm.nSwarms, vm.nParticles, SwarmService.min, SwarmService.max);
             vm.solution = SwarmService.multiSwarm;
             drawLoop();
         }
 
         function startIteration() {
-            $interval(function() {
-                scope.vm.iterateSolution();
-                scope.vm.count++;
-            }, 2000);
+            // d3.select("svg").selectAll("*").remove();
+            vm.count = 0;
+            initSeedModel();
+            $interval.cancel(solutionIterator);
+            solutionIterator = $interval(function() {
+                iterateSolution();
+            }, 3000);
         }
 
         function iterateSolution() {
+            vm.count++;
             SwarmService.iterateSolution();
             drawLoop();
         }
@@ -116,7 +111,8 @@
                 .attr('class', 'particles')
                 .each(drawParticles);
 
-            drawing.each(function(d, i) {
+            drawing.each(drawParticles)
+                .each(function(d, i) {
                 var bestPositionDraw = d3.select(this)
                     .select('circle')
 
@@ -134,6 +130,7 @@
                     .attr('cy', function(d) {
                         return vm.draw.swarms.scales.y(d.bestPosition.y);
                     })
+                    .delay(2000)
                     .duration(300)
                     .transition()
                     .duration(300)
@@ -145,24 +142,30 @@
                     .transition()
                     .duration(10)
                     .attr('r', vm.draw.swarms.draw.radius + 2)
-                    .style('opacity', 1)
+                    .style('opacity', 0.9)
                     .style('fill', function(d) {
                         return vm.draw.swarms.scales.color.range()[i]
-                    })
-            })
-            .each(drawParticles);
+                    });
+            });
+
+            drawing.exit()
+                .remove();
         }
 
         function drawParticles(swarm, i) {
             var particlesDraw = d3.select(this)
                 .select('g')
                 .selectAll('circle')
-                .data(swarm.particles);
+                .data(swarm.particles, function(d) {
+                    return d.id;
+                });
 
             var pVelocityDraw = d3.select(this)
                 .select('g')
                 .selectAll('line')
-                .data(swarm.particles);
+                .data(swarm.particles, function(d) {
+                    return d.id;
+                });
 
             particlesDraw.enter()
                 .append('circle')
@@ -176,7 +179,7 @@
                 .style('fill', function(d) {
                     return vm.draw.swarms.scales.color.range()[i];
                 })
-                .style('opacity', 0.5);
+                .style('opacity', 0.9);
 
             pVelocityDraw.enter()
                 .append('line')
@@ -196,7 +199,7 @@
                 .attr('stroke', function(d) {
                     return vm.draw.swarms.scales.color.range()[i];
                 })
-                .style('opacity', 0.5);
+                .style('opacity', 0.9);
 
             particlesDraw.transition()
                 .attr('cx', function(d) {
@@ -211,6 +214,10 @@
                 .duration(1000)
                 .delay(1000);
 
+            particlesDraw.exit()
+                .remove();
+
+
             pVelocityDraw
                 .transition()
                 .attr('x1', function(d) {
@@ -220,10 +227,10 @@
                     return vm.draw.swarms.scales.y(d.oldPosition.y);
                 })
                 .attr('x2', function(d) {
-                    return vm.draw.swarms.scales.x(d.oldPosition.x) + vm.draw.swarms.scales.velocityX(d.velocity.x);
+                    return vm.draw.swarms.scales.x(d.position.x);
                 })
                 .attr('y2', function(d) {
-                    return vm.draw.swarms.scales.y(d.oldPosition.y) + vm.draw.swarms.scales.velocityY(d.velocity.y);
+                    return vm.draw.swarms.scales.y(d.position.y);
                 })
                 .duration(1000)
                 .transition()
@@ -241,6 +248,9 @@
                 })
                 .duration(1000)
                 .delay(1000);
+
+            pVelocityDraw.exit()
+                .remove();
         }
     }
 }(angular, d3, _));

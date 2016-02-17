@@ -42,7 +42,7 @@ module.exports = function() {
             },
             file: 'templates.js'
         },
-        karma: './karma.conf.js'
+        karma: '/karma.conf.js'
     };
 
     function wiredepConfig() {

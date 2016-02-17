@@ -5,19 +5,20 @@
 
     function SwarmService() {
         var self = this;
+        var nSwarms = 0;
+        var nParticles = 0;
 
         self.swarm = {};
         self.multiSwarm = {};
         self.death = 0.005;
-        self.immigrate = 0.005;
+        self.immigrate = 0.4;
+        // self.immigrate = 0.005;
         self.inertia = 0.729;
         self.cognitiveP = 1.49445;
         self.socialS = 1.49445;
         self.multiSwarmGlobal = 0.3645;
         self.max = 100;
         self.min = -100;
-        self.nSwarms = 0;
-        self.nParticles = 0;
 
         self.generateSwarm = generateSwarm;
         self.generateMultiSwarm = generateMultiSwarm;
@@ -29,8 +30,10 @@
             y: 0
         };
 
-        function generateMultiSwarm(nSwarms, nParticles, min, max) {
+        function generateMultiSwarm(initNSwarms, initNParticles, min, max) {
             var multiSwarm = {};
+            nSwarms = initNSwarms;
+            nParticles = initNParticles;
             multiSwarm.bestCost = 1000000000.0;
             multiSwarm.bestPosition = {
                 x: 0,
@@ -83,6 +86,8 @@
                 y: randomNumber(max - min) + min
             };
 
+            particle.id = _.uniqueId('particle_');
+
             particle.oldPosition = {x: particle.position.x, y: particle.position.y};
 
             particle.cost = fCost(particle.position);
@@ -117,7 +122,7 @@
             }
 
             if(isImmigrant < self.immigrate) {
-                particleSwap(n);
+                particleSwap(n, index, collection);
             }
 
             updateVelocity(n, swarm, self.multiSwarm);
@@ -171,9 +176,9 @@
             return result;
         }
 
-        function particleSwap(particle) {
-            var selectSwarm = Math.floor(randomNumber(self.nSwarms));
-            var selectParticle = Math.floor(randomNumber(self.nParticles));
+        function particleSwap(particle, index, collection) {
+            var selectSwarm = Math.floor(randomNumber(nSwarms));
+            var selectParticle = Math.floor(randomNumber(nParticles));
             var temp = {};
 
             if (particle !== self.multiSwarm.swarms[selectSwarm].particles[selectParticle]) {
