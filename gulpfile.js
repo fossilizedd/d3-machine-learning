@@ -216,7 +216,7 @@ function startBrowserSync(isDev) {
     log('Starting BrowserSync on port ' + port);
 
     if(isDev) {
-        gulp.watch([config.sass], ['clean-styles'])
+        gulp.watch([config.sass], ['sass'])
         .on('change', function(event) { changeEvent(event);});
     } else {
         gulp.watch([config.sass, config.js, config.html], ['browserSyncReload'])

@@ -8,87 +8,102 @@
     function ParticleSwarmDrawController($interval, SwarmService) {
         var vm = this;
         var solutionIterator;
+        var solution;
+        var draw;
 
         vm.init = init;
         vm.initSeedModel = initSeedModel;
-        vm.startIteration = startIteration
-        vm.junk = 'eqls='
+        vm.start = start;
         vm.count = 0;
+        vm.bestCost = {};
+        vm.bestPosition = {};
 
         function init() {
             vm.count = 0;
             vm.nSwarms = 3;
             vm.nParticles = 4;
+            vm.immigrateRate = 0.005;
+            vm.deathRate = 0.005;
+            SwarmService.environment.max = 100;
+            SwarmService.environment.min = -100;
+            initDrawing();
+        }
+
+        function initDrawing() {
             initDrawContainer();
             swarmDrawConfig();
             swarmScales();
         }
 
         function swarmDrawConfig() {
-            vm.draw.swarms = {};
-            vm.draw.swarms.draw = vm.draw.svg.draw.append('g')
+            draw.swarms = {};
+            draw.swarms.draw = draw.svg.draw.append('g')
                 .attr('id', 'swarms');
-            vm.draw.swarms.draw.radius = 3 ;
+            draw.swarms.solution = draw.svg.draw.append('g')
+                .attr('id', 'solutions');
+            draw.swarms.draw.radius = 3 ;
         }
 
         function swarmScales() {
-            vm.draw.swarms.scales = {};
-            vm.draw.swarms.scales.color = d3.scale.category20();
-            vm.draw.swarms.scales.x = d3.scale.linear()
-                .domain([SwarmService.min, SwarmService.max])
-                .range([0, vm.draw.svg.width]);
-            vm.draw.swarms.scales.y = d3.scale.linear()
-                .domain([SwarmService.max, SwarmService.min])
-                .range([0, vm.draw.svg.height]);
-            vm.draw.swarms.scales.cost = d3.scale.linear()
+            draw.swarms.scales = {};
+            draw.swarms.scales.color = d3.scale.category10();
+            draw.swarms.scales.x = d3.scale.linear()
+                .domain([SwarmService.environment.min, SwarmService.environment.max])
+                .range([0, draw.svg.width]);
+            draw.swarms.scales.y = d3.scale.linear()
+                .domain([SwarmService.environment.max, SwarmService.environment.min])
+                .range([0, draw.svg.height]);
+            draw.swarms.scales.cost = d3.scale.linear()
                 .domain([0, 100, 1000])
-                .range(['green', 'yellow', 'red']);
-            vm.draw.swarms.scales.velocityX = d3.scale.linear()
-                .domain([SwarmService.min, SwarmService.max])
+                .range(['#000000', '#D3D3D3', '#EEEEEE']);
+            draw.swarms.scales.velocityX = d3.scale.linear()
+                .domain([SwarmService.environment.min, SwarmService.environment.max])
                 .range([-15, 15]);
-            vm.draw.swarms.scales.velocityY = d3.scale.linear()
-                .domain([SwarmService.max, SwarmService.min])
+            draw.swarms.scales.velocityY = d3.scale.linear()
+                .domain([SwarmService.environment.max, SwarmService.environment.min])
                 .range([-15, 15])
         }
 
         function initDrawContainer() {
-            vm.draw = {};
-            vm.draw.svg = {};
-            vm.draw.svg.height = 800;
-            vm.draw.svg.width = 800;
+            draw = {};
+            draw.svg = {};
+            draw.svg.height = 800;
+            draw.svg.width = 800;
 
-            vm.draw.svg.draw = d3.select('#d3')
+            draw.svg.draw = d3.select('#d3')
                 .append('svg')
                 .attr('id', 'particleSwarm')
-                .attr('width', vm.draw.svg.width)
-                .attr('height', vm.draw.svg.height);
+                .attr('class', 'multiSwarm')
+                .attr('width', draw.svg.width)
+                .attr('height', draw.svg.height);
         }
 
         function initSeedModel() {
-            SwarmService.multiSwarm = SwarmService.generateMultiSwarm(vm.nSwarms, vm.nParticles, SwarmService.min, SwarmService.max);
-            vm.solution = SwarmService.multiSwarm;
+            solution = SwarmService.generateMultiSwarm(vm.nSwarms, vm.nParticles, SwarmService.environment.min, SwarmService.environment.max);
+            SwarmService.environment.deathRate = vm.deathRate;
+            SwarmService.environment.immigrateRate = vm.immigrateRate;
             drawLoop();
         }
 
-        function startIteration() {
-            // d3.select("svg").selectAll("*").remove();
+        function start() {
             vm.count = 0;
             initSeedModel();
+            vm.solution = solution;
             $interval.cancel(solutionIterator);
             solutionIterator = $interval(function() {
-                iterateSolution();
+                iterateSolution(solution);
             }, 3000);
         }
 
-        function iterateSolution() {
-            vm.count++;
-            SwarmService.iterateSolution();
+        function iterateSolution(solution) {
+            SwarmService.iterateSolution(solution);
             drawLoop();
+            vm.count++;
         }
 
         function drawLoop() {
-            var drawing = vm.draw.swarms.draw.selectAll('g .swarm')
-                .data(SwarmService.multiSwarm.swarms)
+            var drawing = draw.swarms.draw.selectAll('g .swarm')
+                .data(solution.swarms)
 
             drawing.enter()
                 .append('g')
@@ -96,15 +111,15 @@
                 .each(function (d, i) {
                     var bestPositionDraw = d3.select(this)
                         .append('circle')
-                        .attr('r', vm.draw.swarms.draw.radius + 2)
+                        .attr('r', draw.swarms.draw.radius + 2)
                         .attr('cx', function(d, i) {
-                            return vm.draw.swarms.scales.x(d.bestPosition.x)
+                            return draw.swarms.scales.x(d.bestPosition.x);
                         })
                         .attr('cy', function(d, i) {
-                            return vm.draw.swarms.scales.y(d.bestPosition.y)
+                            return draw.swarms.scales.y(d.bestPosition.y);
                         })
                         .style('fill', function(d) {
-                            return vm.draw.swarms.scales.color.range()[i]
+                            return draw.swarms.scales.color(i);
                         });
                 })
                 .append('g')
@@ -125,10 +140,10 @@
                     })
                     .transition()
                     .attr('cx', function(d) {
-                        return vm.draw.swarms.scales.x(d.bestPosition.x);
+                        return draw.swarms.scales.x(d.bestPosition.x);
                     })
                     .attr('cy', function(d) {
-                        return vm.draw.swarms.scales.y(d.bestPosition.y);
+                        return draw.swarms.scales.y(d.bestPosition.y);
                     })
                     .delay(2000)
                     .duration(300)
@@ -137,14 +152,14 @@
                     .attr('r', 30)
                     .style('opacity', 0.1)
                     .style('fill', function(d) {
-                        return vm.draw.swarms.scales.cost(d.bestCost);
+                        return draw.swarms.scales.cost(d.bestCost);
                     })
                     .transition()
                     .duration(10)
-                    .attr('r', vm.draw.swarms.draw.radius + 2)
+                    .attr('r', draw.swarms.draw.radius + 2)
                     .style('opacity', 0.9)
                     .style('fill', function(d) {
-                        return vm.draw.swarms.scales.color.range()[i]
+                        return draw.swarms.scales.color(i);
                     });
             });
 
@@ -153,6 +168,8 @@
         }
 
         function drawParticles(swarm, i) {
+            // drawLastSolution(swarm.particles);
+
             var particlesDraw = d3.select(this)
                 .select('g')
                 .selectAll('circle')
@@ -169,47 +186,48 @@
 
             particlesDraw.enter()
                 .append('circle')
-                .attr('r', vm.draw.swarms.draw.radius)
+                .attr('r', draw.swarms.draw.radius)
                 .attr('cx', function(d) {
-                    return vm.draw.swarms.scales.x(d.position.x);
+                    return draw.swarms.scales.x(d.position.x);
                 })
                 .attr('cy', function(d) {
-                    return vm.draw.swarms.scales.y(d.position.y);
+                    return draw.swarms.scales.y(d.position.y);
                 })
                 .style('fill', function(d) {
-                    return vm.draw.swarms.scales.color.range()[i];
+                    return draw.swarms.scales.color(i);
                 })
                 .style('opacity', 0.9);
 
             pVelocityDraw.enter()
                 .append('line')
                 .attr('x1', function(d) {
-                    return vm.draw.swarms.scales.x(d.position.x);
+                    return draw.swarms.scales.x(d.position.x);
                 })
                 .attr('y1', function(d) {
-                    return vm.draw.swarms.scales.y(d.position.y);
+                    return draw.swarms.scales.y(d.position.y);
                 })
                 .attr('x2', function(d) {
-                    return vm.draw.swarms.scales.x(d.position.x);
+                    return draw.swarms.scales.x(d.position.x);
                 })
                 .attr('y2', function(d) {
-                    return vm.draw.swarms.scales.y(d.position.y);
+                    return draw.swarms.scales.y(d.position.y);
                 })
                 .attr('stroke-width', 1)
                 .attr('stroke', function(d) {
-                    return vm.draw.swarms.scales.color.range()[i];
+                    return draw.swarms.scales.color(i);
                 })
                 .style('opacity', 0.9);
 
+
             particlesDraw.transition()
                 .attr('cx', function(d) {
-                    return vm.draw.swarms.scales.x(d.position.x);
+                    return draw.swarms.scales.x(d.position.x);
                 })
                 .attr('cy', function(d) {
-                    return vm.draw.swarms.scales.y(d.position.y);
+                    return draw.swarms.scales.y(d.position.y);
                 })
                 .style('fill', function(d) {
-                    return vm.draw.swarms.scales.color.range()[i];
+                    return draw.swarms.scales.color(i);
                 })
                 .duration(1000)
                 .delay(1000);
@@ -217,40 +235,50 @@
             particlesDraw.exit()
                 .remove();
 
-
             pVelocityDraw
                 .transition()
                 .attr('x1', function(d) {
-                    return vm.draw.swarms.scales.x(d.oldPosition.x);
+                    return draw.swarms.scales.x(d.oldPosition.x);
                 })
                 .attr('y1', function(d) {
-                    return vm.draw.swarms.scales.y(d.oldPosition.y);
+                    return draw.swarms.scales.y(d.oldPosition.y);
                 })
                 .attr('x2', function(d) {
-                    return vm.draw.swarms.scales.x(d.position.x);
+                    return draw.swarms.scales.x(d.position.x);
                 })
                 .attr('y2', function(d) {
-                    return vm.draw.swarms.scales.y(d.position.y);
+                    return draw.swarms.scales.y(d.position.y);
                 })
                 .duration(1000)
                 .transition()
                 .attr('x1', function(d) {
-                    return vm.draw.swarms.scales.x(d.position.x);
+                    return draw.swarms.scales.x(d.position.x);
                 })
                 .attr('y1', function(d) {
-                    return vm.draw.swarms.scales.y(d.position.y);
+                    return draw.swarms.scales.y(d.position.y);
                 })
                 .attr('x2', function(d) {
-                    return vm.draw.swarms.scales.x(d.position.x);
+                    return draw.swarms.scales.x(d.position.x);
                 })
                 .attr('y2', function(d) {
-                    return vm.draw.swarms.scales.y(d.position.y)
+                    return draw.swarms.scales.y(d.position.y)
                 })
                 .duration(1000)
                 .delay(1000);
 
             pVelocityDraw.exit()
                 .remove();
+        }
+
+        function drawLastSolution(particles) {
+            _.forEach(particles, function(particle) {
+                draw.swarms.solution.append('circle')
+                .attr('cx', draw.swarms.scales.x(particle.oldPosition.x))
+                .attr('cy', draw.swarms.scales.y(particle.oldPosition.y))
+                .attr('r', draw.swarms.draw.radius + 1)
+                .style('fill', draw.swarms.scales.cost(particle.cost))
+                .style('opacity', 0.2);
+            })
         }
     }
 }(angular, d3, _));

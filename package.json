@@ -19,7 +19,8 @@
   },
   "homepage": "https://github.com/eddiehobbes/d3-machine-learning",
   "dependencies": {
-    "express": "^4.13.4"
+    "express": "^4.13.4",
+    "lodash": "^4.5.1"
   },
   "devDependencies": {
     "browser-sync": "^2.11.0",
