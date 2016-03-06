@@ -168,8 +168,6 @@
         }
 
         function drawParticles(swarm, i) {
-            // drawLastSolution(swarm.particles);
-
             var particlesDraw = d3.select(this)
                 .select('g')
                 .selectAll('circle')
