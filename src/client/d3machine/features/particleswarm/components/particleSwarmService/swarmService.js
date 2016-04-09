@@ -157,7 +157,7 @@
 
             var result = (environment.inertia * velocity)
             + (environment.cognitiveP * r1 * (pBestPosition - pPosition))
-            + (environment.socialS * r2 * (sPosition - pPosition));
+            + (environment.socialS * r2 * (sPosition - pPosition))
             + (environment.multiSwarmGlobal * r3 * (msBestPosition - pPosition));
 
             if (result > environment.max) {
@@ -172,8 +172,8 @@
             var selectSwarm = Math.floor(randomNumber(nSwarms));
             var selectParticle = Math.floor(randomNumber(nParticles));
             var temp = {};
-            var source = particle;
-            var target = multiSwarm.swarms[selectSwarm].particles[selectParticle];
+            // var source = particle;
+            // var target = multiSwarm.swarms[selectSwarm].particles[selectParticle];
 
             // if (source !== target) {
             //     source = _.remove(collection, function(item){

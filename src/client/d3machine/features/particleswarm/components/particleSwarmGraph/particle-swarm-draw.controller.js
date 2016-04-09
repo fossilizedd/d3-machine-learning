@@ -41,7 +41,7 @@
                 .attr('id', 'swarms');
             draw.swarms.solution = draw.svg.draw.append('g')
                 .attr('id', 'solutions');
-            draw.swarms.draw.radius = 3 ;
+            draw.swarms.draw.radius = 3;
         }
 
         function swarmScales() {
@@ -61,7 +61,7 @@
                 .range([-15, 15]);
             draw.swarms.scales.velocityY = d3.scale.linear()
                 .domain([SwarmService.environment.max, SwarmService.environment.min])
-                .range([-15, 15])
+                .range([-15, 15]);
         }
 
         function initDrawContainer() {
@@ -103,22 +103,22 @@
 
         function drawLoop() {
             var drawing = draw.swarms.draw.selectAll('g .swarm')
-                .data(solution.swarms)
+                .data(solution.swarms);
 
             drawing.enter()
                 .append('g')
                 .attr('class', 'swarm')
-                .each(function (d, i) {
-                    var bestPositionDraw = d3.select(this)
+                .each(function bestPositionDraw (d, i) {
+                    d3.select(this)
                         .append('circle')
                         .attr('r', draw.swarms.draw.radius + 2)
-                        .attr('cx', function(d, i) {
+                        .attr('cx', function(d) {
                             return draw.swarms.scales.x(d.bestPosition.x);
                         })
-                        .attr('cy', function(d, i) {
+                        .attr('cy', function(d) {
                             return draw.swarms.scales.y(d.bestPosition.y);
                         })
-                        .style('fill', function(d) {
+                        .style('fill', function() {
                             return draw.swarms.scales.color(i);
                         });
                 })
@@ -129,7 +129,7 @@
             drawing.each(drawParticles)
                 .each(function(d, i) {
                 var bestPositionDraw = d3.select(this)
-                    .select('circle')
+                    .select('circle');
 
                 bestPositionDraw
                     .filter(function(d) {
@@ -158,7 +158,7 @@
                     .duration(10)
                     .attr('r', draw.swarms.draw.radius + 2)
                     .style('opacity', 0.9)
-                    .style('fill', function(d) {
+                    .style('fill', function() {
                         return draw.swarms.scales.color(i);
                     });
             });
@@ -191,7 +191,7 @@
                 .attr('cy', function(d) {
                     return draw.swarms.scales.y(d.position.y);
                 })
-                .style('fill', function(d) {
+                .style('fill', function() {
                     return draw.swarms.scales.color(i);
                 })
                 .style('opacity', 0.9);
@@ -211,7 +211,7 @@
                     return draw.swarms.scales.y(d.position.y);
                 })
                 .attr('stroke-width', 1)
-                .attr('stroke', function(d) {
+                .attr('stroke', function() {
                     return draw.swarms.scales.color(i);
                 })
                 .style('opacity', 0.9);
@@ -224,7 +224,7 @@
                 .attr('cy', function(d) {
                     return draw.swarms.scales.y(d.position.y);
                 })
-                .style('fill', function(d) {
+                .style('fill', function() {
                     return draw.swarms.scales.color(i);
                 })
                 .duration(1000)
@@ -259,7 +259,7 @@
                     return draw.swarms.scales.x(d.position.x);
                 })
                 .attr('y2', function(d) {
-                    return draw.swarms.scales.y(d.position.y)
+                    return draw.swarms.scales.y(d.position.y);
                 })
                 .duration(1000)
                 .delay(1000);
@@ -268,15 +268,15 @@
                 .remove();
         }
 
-        function drawLastSolution(particles) {
-            _.forEach(particles, function(particle) {
-                draw.swarms.solution.append('circle')
-                .attr('cx', draw.swarms.scales.x(particle.oldPosition.x))
-                .attr('cy', draw.swarms.scales.y(particle.oldPosition.y))
-                .attr('r', draw.swarms.draw.radius + 1)
-                .style('fill', draw.swarms.scales.cost(particle.cost))
-                .style('opacity', 0.2);
-            })
-        }
+        // function drawLastSolution(particles) {
+        //     _.forEach(particles, function(particle) {
+        //         draw.swarms.solution.append('circle')
+        //         .attr('cx', draw.swarms.scales.x(particle.oldPosition.x))
+        //         .attr('cy', draw.swarms.scales.y(particle.oldPosition.y))
+        //         .attr('r', draw.swarms.draw.radius + 1)
+        //         .style('fill', draw.swarms.scales.cost(particle.cost))
+        //         .style('opacity', 0.2);
+        //     });
+        // }
     }
 }(angular, d3, _));

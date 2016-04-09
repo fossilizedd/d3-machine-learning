@@ -4,7 +4,7 @@
     angular.module('d3machinelearn.particleSwarm')
         .directive('viewContainer', viewContainer);
 
-    function viewContainer($interval) {
+    function viewContainer() {
         return {
             require: '^particleSwarmDraw',
             restrict: 'E',

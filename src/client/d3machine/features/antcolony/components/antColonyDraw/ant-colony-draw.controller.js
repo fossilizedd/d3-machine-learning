@@ -12,7 +12,6 @@
         var bestTrail;
         var iterations;
         var solutions = [];
-        var solutionIntervalIterator;
         var ants;
         var trailgraph;
         var pheromones;
@@ -23,11 +22,10 @@
 
         // Playing best trail
         var idxPlaySolution = 0;
-        var solutionPlayer;
         vm.solutionIteration = undefined;
         vm.solutionLength = undefined;
         vm.solutionFinished = false;
-        vm.playSolution = playSolution
+        vm.playSolution = playSolution;
 
         // Playing pheromone History
         var idxPlayPheromone = 0;
@@ -48,9 +46,9 @@
         // iterateFull(ants, pheromones, trailgraph);
 
         function init(nAnts, nCities) {
-            ants = AntColonyService.GenerateAnts(nAnts, nCities);
-            trailgraph = AntColonyService.GenerateCitiesGraph(nCities);
-            pheromones = AntColonyService.GeneratePheromones(nCities);
+            ants = AntColonyService.generateAnts(nAnts, nCities);
+            trailgraph = AntColonyService.generateCitiesGraph(nCities);
+            pheromones = AntColonyService.generatePheromones(nCities);
             bestTrail = ants[0].trail;
             iterations = 0;
             solutions = [];
@@ -73,15 +71,15 @@
                 .attr('width', vis.svg.width)
                 .attr('height', vis.svg.height)
                 .attr('class', 'd3-bordered-center')
-                .append('g')
+                .append('g');
 
             vis.scales = {};
             vis.scales.row = d3.scale.linear()
                 .domain([0, nCities])
-                .range([0, vis.svg.height])
+                .range([0, vis.svg.height]);
             vis.scales.column = d3.scale.linear()
                 .domain([0, nCities])
-                .range([0, vis.svg.width])
+                .range([0, vis.svg.width]);
 
             vis.rect = {};
             vis.rect.roundcorners = 2;
@@ -136,31 +134,25 @@
                     $interval.cancel(player.best);
                 }
                 var solution = vm.solutions[idxPlaySolution];
-                debugger;
                 drawBestTrail(draw.bestTrail, solution.trail);
                 vm.solutionIteration = solution.iteration;
                 vm.solutionLength = solution.length;
                 idxPlaySolution++;
-            }, 5000)
+            }, 5000);
         }
 
         function playPheromones() {
             idxPlayPheromone = 0;
             player.pheromones = $interval(function () {
-                // if (idxPlayPheromone < pheromonesStates.length) {
                 if (idxPlayPheromone >= 199) {
-                    $interval.cancel(player.pheromones)
+                    $interval.cancel(player.pheromones);
                 }
                 var pheromoneState = pheromonesStates[idxPlayPheromone];
                 vm.pheromoneState = pheromoneState;
                 vm.playPheromoneIteration = idxPlayPheromone;
                 drawPheromones(draw.pheromones, pheromoneState);
-                // _.forEach(pheromoneState, function(item) {
-                //     console.log('max: ' + _.max(item));
-                //     console.log('min: ' + _.min(item));
-                // })
                 idxPlayPheromone++;
-            }, 500)
+            }, 500);
         }
 
         // function playAntTrailBuild() {
@@ -187,7 +179,7 @@
 
         function drawPheromones(vis, pheromones) {
             var draw = vis.draw.selectAll('g')
-                .data(pheromones)
+                .data(pheromones);
 
             draw.enter()
                 .append('g')
@@ -208,7 +200,7 @@
 
                 var rowDraw = d3.select(this)
                     .selectAll('rect')
-                    .data(row)
+                    .data(row);
 
                 rowDraw.enter()
                     .append("rect")
@@ -259,21 +251,20 @@
                 .duration(4000)
                 .attr('x', function(d, i) {
                     return i * vis.gridSize;
-                })
+                });
 
             draw.exit()
                 .remove();
         }
 
         function iterate(ants, pheromones, trailGraph) {
-            var currBestTrail = AntColonyService.FindBestTrail(ants, trailGraph);
-            var currBestLength = AntColonyService.TrailLength(currBestTrail, trailGraph)
-            AntColonyService.UpdateAnts(ants, pheromones, trailGraph);
-            AntColonyService.UpdatePheromones(pheromones, ants, trailGraph);
+            var currBestTrail = AntColonyService.findBestTrail(ants, trailGraph);
+            var currBestLength = AntColonyService.trailLength(currBestTrail, trailGraph)
+            AntColonyService.updateAnts(ants, pheromones, trailGraph);
+            AntColonyService.updatePheromones(pheromones, ants, trailGraph);
             pheromonesStates.push(getPheromoneState(angular.copy(pheromones)));
             if (currBestLength < bestTrailCost()) {
                 bestTrail = currBestTrail;
-                // console.log('New Best Length of ' + bestTrailCost() + ' found at iteration: ' + iterations);
                 pushSolution(bestTrail, pheromones);
             }
         }
@@ -285,18 +276,18 @@
                 trail: trail,
                 pheromones: angular.copy(pheromones)
             });
-        };
+        }
 
         function getPheromoneState(pheromoneState) {
             return _(_.values(pheromoneState))
                 .map(function(item) {
-                    return _.values(item)
+                    return _.values(item);
                 })
-                .value()
+                .value();
         }
 
         function bestTrailCost() {
-            return AntColonyService.TrailLength(bestTrail, trailgraph);
+            return AntColonyService.trailLength(bestTrail, trailgraph);
         }
     }
 }(angular, d3, _));
