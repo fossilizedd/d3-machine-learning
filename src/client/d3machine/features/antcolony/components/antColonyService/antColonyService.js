@@ -21,6 +21,11 @@
         self.updateAnts = updateAnts;
         self.updatePheromones = updatePheromones;
 
+        //Small
+        self.moveProbability = moveProbability;
+        self.buildWheelSelection = buildWheelSelection;
+        self.nextCity = nextCity;
+
         function initializeAnt(nCities) {
             var ant = generateAnt();
             var startCity = _.random(0, nCities - 1);
@@ -77,21 +82,24 @@
             return citiesGraph;
         }
 
-        function nextCity(ant, city, visited, pheromones, distances) {
-            var probabilities = moveProbability(ant, city, visited, pheromones, distances);
-            var pickCity;
-            var rouletteWheelSelection = _.reduce(probabilities, function(probWheel, current, index) {
-                probWheel[index + 1] = probWheel[index] + probabilities[index];
-                return probWheel;
-            }, [0]);
-            rouletteWheelSelection[rouletteWheelSelection.length - 1] = 1.00;
-            pickCity = _.random(0, 1, true);
+        function nextCity(rouletteWheelSelection) {
+            var pickCity = _.random(0, 1, true);
+            // var rouletteWheelSelection = buildWheelSelection(probabilities);
             return _.findIndex(rouletteWheelSelection, function(item, index, wheelSelect) {
                 return pickCity >= item && pickCity < wheelSelect[index + 1];
             });
         }
 
-        function moveProbability(ant, city, visited, pheromones, distances) {
+        function buildWheelSelection(probabilities) {
+            var rouletteWheelSelection = _.reduce(probabilities, function(probWheel, current, index) {
+                probWheel[index + 1] = probWheel[index] + probabilities[index];
+                return probWheel;
+            }, [0]);
+            rouletteWheelSelection[rouletteWheelSelection.length - 1] = 1.00;
+            return rouletteWheelSelection;
+        }
+
+        function moveProbability(city, visited, pheromones, distances) {
             var nCities = distances.length;
             var taueta = [];
             var sum = 0.0;
@@ -151,11 +159,11 @@
             var nCities = distances.length;
             _.forEach(ants, function(ant, index) {
                 var start = _.random(nCities - 1);
-                ant.trail = buildTrail(index, start, pheromones, distances);
+                ant.trail = buildTrail(start, pheromones, distances);
             });
         }
 
-        function buildTrail(iAnt, start, pheromones, distances) {
+        function buildTrail(start, pheromones, distances) {
             var nCities = distances.length;
             var pathFinding = {
                 trail: [],
@@ -170,7 +178,10 @@
                     return accumulator;
                 }
                 else {
-                    var next = nextCity(iAnt, accumulator.prev, accumulator.visited, pheromones, distances);
+                    var probabilities = moveProbability(accumulator.prev , accumulator.visited, pheromones, distances);
+                    var rouletteWheelSelection = buildWheelSelection(probabilities);
+                    var next = nextCity(rouletteWheelSelection);
+
                     accumulator.prev = next;
                     accumulator.trail.push(next);
                     accumulator.visited[next] = true;
@@ -178,7 +189,6 @@
                 }
             }
         }
-
 
         function findBestTrail(ants, costs) {
             var bestAntSearch = {

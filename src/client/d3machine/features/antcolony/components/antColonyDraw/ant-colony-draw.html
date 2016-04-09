@@ -32,7 +32,26 @@
 </div>
 <div class="row section">
     <div class="col-md-12">
-        Every iteration an ant has to decide on a new trail to go to. The algorithm uses a roulette wheel selection shown below to decide the next city to go to.
+        <div>
+            Every iteration an ant has to decide on a new trail to go to. The algorithm uses a roulette wheel selection shown below to decide the next city to go to.
+        </div>
+    </div>
+</div>
+<div class="row section">
+    <div class="col-md-6">
+        <div class="input-group input-group-sm">
+            <span class="input-group-addon" id="sizing-addon3">Start City<span>
+            <input type="number" class="form-control" placeholder="Starting City" aria-describedby="sizing-addon3" ng-model="vm.simSelection.start">
+        </div>
+        <div>
+            <input class="btn btn-default btn-sm" type="button" value="Start" ng-click="vm.playCitySelection()" ng-disabled="!vm.solutionFinished">
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="input-group input-group-sm">
+            <span class="input-group-addon" id="sizing-addon3">Pheromone at Iteration<span>
+            <input type="number" class="form-control" placeholder="Pheromone Iteration" aria-describedby="sizing-addon3" ng-model="vm.simSelection.pheromoneIndex">
+        </div>
     </div>
 </div>
 <div class="row section">

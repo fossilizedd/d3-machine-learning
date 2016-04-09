@@ -10,9 +10,7 @@
             controller: 'antColonyDrawController',
             controllerAs: 'vm',
             bindToController: true,
-            templateUrl: 'd3machine/features/antcolony/components/antColonyDraw/ant-colony-draw.html',
-            link: function(scope, attrs) {
-            }
+            templateUrl: 'd3machine/features/antcolony/components/antColonyDraw/ant-colony-draw.html'
         };
     }
 }(angular));

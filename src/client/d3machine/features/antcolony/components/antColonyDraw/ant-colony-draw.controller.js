@@ -30,7 +30,6 @@
         // Playing pheromone History
         var idxPlayPheromone = 0;
         vm.playPheromones = playPheromones;
-
         vm.nCities = nCities;
         vm.nAnts = nAnts;
         vm.solutions = solutions;
@@ -84,17 +83,10 @@
             vis.rect = {};
             vis.rect.roundcorners = 2;
             vis.rect.size = vis.svg.height / nCities;
-            // vis.rect.color = d3.scale.linear()
-            //     .domain([0.001, 0.1, 0.5])
-            //     .range(['#FFFFFF', '#808080', '#000000']);
 
             vis.rect.color = d3.scale.linear()
                 .domain([0.005, 0.15, 1.5])
                 .range(['#FFFFFF', '#808080', '#000000']);
-
-            // vis.rect.color = d3.scale.linear()
-            //     .domain([0.001, 2.0])
-            //     .range(['#FFFFFF', '#000000']);
 
             return vis;
         }
@@ -195,9 +187,6 @@
                     .range(['#FFFFFF', '#4682B4']);
                     // .range(['#0000FF', '#FF0000']);
 
-
-
-
                 var rowDraw = d3.select(this)
                     .selectAll('rect')
                     .data(row);
@@ -259,7 +248,7 @@
 
         function iterate(ants, pheromones, trailGraph) {
             var currBestTrail = AntColonyService.findBestTrail(ants, trailGraph);
-            var currBestLength = AntColonyService.trailLength(currBestTrail, trailGraph)
+            var currBestLength = AntColonyService.trailLength(currBestTrail, trailGraph);
             AntColonyService.updateAnts(ants, pheromones, trailGraph);
             AntColonyService.updatePheromones(pheromones, ants, trailGraph);
             pheromonesStates.push(getPheromoneState(angular.copy(pheromones)));
@@ -267,6 +256,19 @@
                 bestTrail = currBestTrail;
                 pushSolution(bestTrail, pheromones);
             }
+        }
+
+        function playCitySelection(startCity, iPheromoneState) {
+            var visited = [];
+
+            var cityOptions = cityPossibilities(startCity, visited, pheromonesStates[iPheromoneState], trailGraph);
+            var nextCity = AntColonyService.nextCity(cityOptions);
+            visited.push(nextCity);
+        }
+
+        function cityPossibilities(start, visited, pheromones, trailGraph) {
+            var probabilities = AntColonyService.moveProbability(start, visited, pheromones, trailGraph);
+            return AntColonyService.buildWheelSelection(probabilities);
         }
 
         function pushSolution(trail, pheromones) {
