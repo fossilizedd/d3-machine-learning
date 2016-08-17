@@ -19,12 +19,14 @@
   },
   "homepage": "https://github.com/eddiehobbes/d3-machine-learning",
   "dependencies": {
-    "express": "^4.13.4"
+    "express": "^4.13.4",
+    "lodash": "^4.5.1"
   },
   "devDependencies": {
     "browser-sync": "^2.11.0",
     "browserify": "^11.0.0",
     "chai": "^3.2.0",
+    "del": "^2.2.0",
     "event-stream": "^3.3.1",
     "gulp": "^3.9.0",
     "gulp-angular-filesort": "^1.1.1",

@@ -7,28 +7,17 @@
         var self = this;
         var nSwarms = 0;
         var nParticles = 0;
+        var environment = {
+            inertia: 0.729,
+            cognitiveP: 1.49445,
+            socialS: 1.49445,
+            multiSwarmGlobal: 0.3645
+        };
 
-        self.swarm = {};
-        self.multiSwarm = {};
-        self.death = 0.005;
-        self.immigrate = 0.4;
-        // self.immigrate = 0.005;
-        self.inertia = 0.729;
-        self.cognitiveP = 1.49445;
-        self.socialS = 1.49445;
-        self.multiSwarmGlobal = 0.3645;
-        self.max = 100;
-        self.min = -100;
-
+        self.environment = environment;
         self.generateSwarm = generateSwarm;
         self.generateMultiSwarm = generateMultiSwarm;
         self.iterateSolution = iterateSolution;
-
-        // Solution
-        self.solution = {
-            x: 0,
-            y: 0
-        };
 
         function generateMultiSwarm(initNSwarms, initNParticles, min, max) {
             var multiSwarm = {};
@@ -104,45 +93,48 @@
             return result;
         }
 
-        function iterateSolution() {
-            _.forEach(self.multiSwarm.swarms, iterateSwarm);
+        function iterateSolution(multiSwarm) {
+            _.forEach(multiSwarm.swarms, function(swarm) {
+                iterateSwarm(swarm, multiSwarm);
+            });
         }
 
-        function iterateSwarm(swarm) {
-            _.forEach(swarm.particles, iterateParticle, swarm);
+        function iterateSwarm(swarm, multiSwarm) {
+            _.forEach(swarm.particles, function(particle, index, collection) {
+                iterateParticle(particle, index, collection, swarm, multiSwarm);
+            });
         }
 
-        function iterateParticle(n, index, collection) {
+        function iterateParticle(p, index, collection, swarm, multiSwarm) {
             var isDead = randomNumber(1);
             var isImmigrant = randomNumber(1);
-            var swarm = this;
 
-            if (isDead < self.death) {
-                collection[index] = generateParticle(self.min, self.max);
+            if (isDead < environment.deathRate) {
+                collection[index] = generateParticle(environment.min, environment.max);
             }
 
-            if(isImmigrant < self.immigrate) {
-                particleSwap(n, index, collection);
+            if (isImmigrant < environment.immigrateRate) {
+                particleSwap(p, index, collection, multiSwarm);
             }
 
-            updateVelocity(n, swarm, self.multiSwarm);
-            updatePosition(n);
-            n.cost = fCost(n.position);
+            updateVelocity(p, swarm, multiSwarm);
+            updatePosition(p);
+            p.cost = fCost(p.position);
 
-            if (n.cost < n.bestCost) {
-                n.bestCost = n.cost;
-                angular.copy(n.position, n.bestPosition);
+            if (p.cost < p.bestCost) {
+                p.bestCost = p.cost;
+                angular.copy(p.position, p.bestPosition);
             }
 
-            if (n.cost < swarm.bestCost) {
-                swarm.bestCost = n.cost;
+            if (p.cost < swarm.bestCost) {
+                swarm.bestCost = p.cost;
                 swarm.draw.changed = true;
-                angular.copy(n.position, swarm.bestPosition);
+                angular.copy(p.position, swarm.bestPosition);
             }
 
-            if (n.cost < self.multiSwarm.bestCost) {
-                self.multiSwarm.bestCost = n.cost;
-                angular.copy(n.position, self.multiSwarm.bestPosition);
+            if (p.cost < multiSwarm.bestCost) {
+                multiSwarm.bestCost = p.cost;
+                angular.copy(p.position, multiSwarm.bestPosition);
             }
         }
 
@@ -163,30 +155,41 @@
             var r2 = randomNumber(1);
             var r3 = randomNumber(1);
 
-            var result = (self.inertia * velocity)
-            + (self.cognitiveP * r1 * (pBestPosition - pPosition))
-            + (self.socialS * r2 * (sPosition - pPosition));
-            + (self.multiSwarmGlobal * r3 * (msBestPosition - pPosition));
+            var result = (environment.inertia * velocity)
+            + (environment.cognitiveP * r1 * (pBestPosition - pPosition))
+            + (environment.socialS * r2 * (sPosition - pPosition))
+            + (environment.multiSwarmGlobal * r3 * (msBestPosition - pPosition));
 
-            if (result > self.max) {
-                result = self.max;
-            } else if (result < self.min) {
-                result = self.min;
+            if (result > environment.max) {
+                result = environment.max;
+            } else if (result < environment.min) {
+                result = environment.min;
             }
             return result;
         }
 
-        function particleSwap(particle, index, collection) {
+        function particleSwap(particle, index, collection, multiSwarm) {
             var selectSwarm = Math.floor(randomNumber(nSwarms));
             var selectParticle = Math.floor(randomNumber(nParticles));
             var temp = {};
+            // var source = particle;
+            // var target = multiSwarm.swarms[selectSwarm].particles[selectParticle];
 
-            if (particle !== self.multiSwarm.swarms[selectSwarm].particles[selectParticle]) {
+            // if (source !== target) {
+            //     source = _.remove(collection, function(item){
+            //         return item.id = source.id;
+            //     });
+            //     target = _.remove(collection, function() {
+            //         return item.id = target.id;
+            //     });
+            //     collection.push(target);
+            //     multiSwarm.swarms[selectSwarm].particles.push(source);
+            // }
+            if (particle !== multiSwarm.swarms[selectSwarm].particles[selectParticle]) {
                 angular.copy(particle, temp);
-                angular.copy(self.multiSwarm.swarms[selectSwarm].particles[selectParticle], particle);
-                angular.copy(temp, self.multiSwarm.swarms[selectSwarm].particles[selectParticle]);
-            }
-            else {
+                angular.copy(multiSwarm.swarms[selectSwarm].particles[selectParticle], particle);
+                angular.copy(temp, multiSwarm.swarms[selectSwarm].particles[selectParticle]);
+            } else {
                 particleSwap(particle);
             }
         }

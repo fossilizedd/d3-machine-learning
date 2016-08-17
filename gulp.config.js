@@ -29,7 +29,7 @@ module.exports = function() {
             ignorePath: '../..'
         },
         fonts: './bower_components/fonts-awesome/fonts/**/*.*',
-        images: 'images',
+        images: d3machine + 'resources/images',
         defaultPort: 8080,
         nodeServer: './src/server/app.js',
         server: server,

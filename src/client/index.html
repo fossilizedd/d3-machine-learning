@@ -21,21 +21,27 @@
     <script src="/bower_components/angular-route/angular-route.js"></script>
     <script src="/bower_components/jquery/dist/jquery.js"></script>
     <script src="/bower_components/bootstrap/dist/js/bootstrap.js"></script>
-    <script src="/bower_components/lodash/lodash.js"></script>
     <script src="/bower_components/d3/d3.js"></script>
     <script src="/bower_components/ui-router/release/angular-ui-router.js"></script>
     <script src="/bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+    <script src="/bower_components/rxjs/dist/rx.all.js"></script>
+    <script src="/bower_components/rx-angular/dist/rx.angular.js"></script>
     <!-- endbower -->
+    <script src="/node_modules/lodash/lodash.js"></script>
     <!-- endbuild -->
 
 
     <!-- build:js js/d3machine.js -->
     <!-- inject-js:js -->
     <script src="/src/client/d3machine/core/d3machinelearn.core.module.js"></script>
+    <script src="/src/client/d3machine/features/antcolony/ant-colony.module.js"></script>
     <script src="/src/client/d3machine/features/particleswarm/particle-swarm.module.js"></script>
     <script src="/src/client/d3machine/app.js"></script>
+    <script src="/src/client/d3machine/features/antcolony/components/antColonyDraw/ant-colony-draw.controller.js"></script>
+    <script src="/src/client/d3machine/features/antcolony/components/antColonyDraw/ant-colony-draw.directive.js"></script>
     <script src="/src/client/d3machine/features/particleswarm/components/drawContainer/view-container.controller.js"></script>
     <script src="/src/client/d3machine/features/particleswarm/components/drawContainer/view-container.directive.js"></script>
+    <script src="/src/client/d3machine/features/antcolony/components/antColonyService/antColonyService.js"></script>
     <script src="/src/client/d3machine/features/particleswarm/components/particleSwarmGraph/particle-swarm-draw.controller.js"></script>
     <script src="/src/client/d3machine/features/particleswarm/components/particleSwarmGraph/particle-swarm-draw.directive.js"></script>
     <script src="/src/client/d3machine/features/particleswarm/components/particleSwarmService/swarmService.js"></script>
@@ -48,11 +54,17 @@
     </head>
 
     <body ng-app="d3machinelearn">
-        <div class="background-screen">
+        <div class="background-screen container">
             <div class="row">
                 <div class="col-md-12">
+                    <a ui-sref="app.home">
+                        Home
+                    </a>
                     <a ui-sref="app.particleSwarm">
-                        Particle Swarm
+                        Multiswarm Particle
+                    </a>
+                    <a ui-sref="app.antColony">
+                        Ant Colony Optimization
                     </a>
                 </div>
             </div>

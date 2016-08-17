@@ -10,7 +10,7 @@ var series = require('stream-series');
 var karma = require('karma').server;
 var lazypipe = require('lazypipe');
 
-var port = process.env.PORT || config.defaultPort;
+var port = process.env.PORT || 8080;
 
 gulp.task('help', $.taskListing);
 
@@ -216,13 +216,13 @@ function startBrowserSync(isDev) {
     log('Starting BrowserSync on port ' + port);
 
     if(isDev) {
-        gulp.watch([config.sass], ['clean-styles'])
+        gulp.watch([config.sass], ['sass'])
         .on('change', function(event) { changeEvent(event);});
     } else {
         gulp.watch([config.sass, config.js, config.html], ['browserSyncReload'])
         .on('change', function(event) { changeEvent(event);});
     }
-
+    
     var options = {
         proxy: 'localhost:' + port,
         port: port,
@@ -244,7 +244,7 @@ function startBrowserSync(isDev) {
         notify: true,
         reloadDelay: 1000
     };
-    browserSync(options);
+    // browserSync(options);
 }
 
 /**

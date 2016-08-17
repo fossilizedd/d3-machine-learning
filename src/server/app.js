@@ -17,10 +17,10 @@ app.get('/ping', function(req, res, next) {
 switch(environment) {
     case 'build':
         console.log('BUILD');
-        app.use(express.static('./.serve'))
+        app.use(express.static('./.serve'));
         app.use('/app/*', function(req, res, next) {
             four0four.send404(req, res);
-        })
+        });
 
         app.use('/*', express.static('./.serve/index.html'));
         break;
@@ -32,7 +32,7 @@ switch(environment) {
 
         app.use('/app/*', function(req, res, next) {
             four0four.send404(req, res);
-        })
+        });
 
         app.use('/*', express.static('./src/client/index.html'));
         break;

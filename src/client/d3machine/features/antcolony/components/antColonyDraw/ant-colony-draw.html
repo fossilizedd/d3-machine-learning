@@ -1,0 +1,92 @@
+<div class="row section">
+    <div class="col-md-12">
+        <h2>
+            James McCaffrey Ant Colony Optimization
+        </h2>
+    </div>
+</div>
+<div class="row section">
+    <div class="col-md-12">
+        Visualization of <a href="https://msdn.microsoft.com/en-us/magazine/hh781027.aspx">James McCaffrey's Ant Colony Optimization</a>. This algorithm finds a good, but not optimal solution to the Traveling Salesman Problem. Given <i>n</i> number of cities,
+        we find the shortest path to visit all cities exactly once. Traveling Salesman is in a class of problems where iterating over every possible combination is computationally expensive.
+    </div>
+</div>
+<div class="row section">
+    <div class="col-md-12">
+        The algorithm models ant colony intelligence. The ants here will try to traverse the cities using the colony's pheromone knowledge. Pheromones are left by ants to notify other ants of a promising trail and accumulate on frequently traveled paths, while less common paths the signal fades.
+        Here we have a pheromone table from every city to another city and individually the ants contribute and collectively act on the pheromone trails.
+    </div>
+</div>
+<div class="row section">
+    <div class="col-md-12">
+        <input class="btn btn-default btn-sm" type="button" value="Start" ng-click="vm.playSolution()" ng-disabled="!vm.solutionFinished">
+        <div>Iteration: {{vm.solutionIteration}} Length: {{vm.solutionLength}}</div>
+
+        <div id="d3-ants-bestsolution"></div>
+    </div>
+</div>
+<div class="row section">
+    <div class="col-md-12">
+        We can see the solution is good, while not guaranteed to be optimal. It is very close to the number of cities as the cost to a city is randomly generate as 1 to 8. As better and better solutions are found we can start to see chains of cities moving together indicating a good path for a subproblem has been found.
+    </div>
+</div>
+<div class="row section">
+    <div class="col-md-12">
+        <div>
+            Every iteration an ant has to decide on a new trail to go to. The algorithm uses a roulette wheel selection shown below to decide the next city to go to.
+        </div>
+    </div>
+</div>
+<div class="row section">
+    <div class="col-md-6">
+        <div class="input-group input-group-sm">
+            <span class="input-group-addon" id="sizing-addon3">Start City<span>
+            <input type="number" class="form-control" placeholder="Starting City" aria-describedby="sizing-addon3" ng-model="vm.simSelection.start">
+        </div>
+        <div>
+            <input class="btn btn-default btn-sm" type="button" value="Start" ng-click="vm.playCitySelection()" ng-disabled="!vm.solutionFinished">
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="input-group input-group-sm">
+            <span class="input-group-addon" id="sizing-addon3">Pheromone at Iteration<span>
+            <input type="number" class="form-control" placeholder="Pheromone Iteration" aria-describedby="sizing-addon3" ng-model="vm.simSelection.pheromoneIndex">
+        </div>
+    </div>
+</div>
+<div class="row section">
+    <div class="col-md-12">
+        <div id="d3-ants-trailbuilding"></div>
+    </div>
+</div>
+<div class="row section">
+    <div class="col-md-12">
+        As cities are traversed they are taken out of the wheel selection and the odds change accordingly. Once a trail is built for an ant, the cost is scored and the pheromones are updated.
+    </div>
+</div>
+<div class="row section">
+    <div class="col-md-12">
+        <div>
+            The Pheromones table represents the collective knowledge of paths and intelligence of the colony as a whole. We can play back a visualization of the pheromones over time.
+            Iteration: {{vm.playPheromoneIteration}}
+        </div>
+        <input class="btn btn-default btn-sm" type="button" value="Start" ng-click="vm.playPheromones()" ng-disabled="!vm.solutionFinished">
+    </div>
+</div>
+<div class="row section">
+    <div class="col-md-12">
+        <div id="d3-ants-pheromones"></div>
+    </div>
+</div>
+<div class="row section">
+    <div class="col-md-12">
+        <div>
+            At first colony "thinking" looks like chaos, but at about iteration ~40 we can see a row find it's optimal solution and additional iterations make the picture much more clear. Each x,y square represents being at x: the heuristic of visiting y city next. Note that (x, y) and (y, x) have the same cost so the visualization is mirrored across the diagnonal.
+        </div>
+    </div>
+</div>
+<div class="row section">
+    <div class="col-md-12">
+        Often times reading or having algorithms explained is difficult. Visualizations can speed up understanding of an algorithm and demonstrate how they run and their quirks.
+    </div>
+</div>
